@@ -95,27 +95,31 @@ export default function ReportPage() {
         if (uploadError) throw uploadError
 
         const { data } = supabase.storage.from("item-images").getPublicUrl(fileName)
-
         imageUrl = data?.publicUrl || null
       }
 
-      const { error: insertError } = await supabase.from("items").insert({
-        user_id: user.id,
-        title: title.trim(),
-        description: description.trim(),
+      const { postItem } = await import("@/app/actions/post-item")
+      const result = await postItem({
+        title,
+        description,
         category,
         status,
         location_name: `${location}, ${locationDetails}`.trim(),
         item_date: date,
-        image_url: imageUrl,
-        contact_phone: phone.trim(),
-        contact_email: email.trim(),
-        coordinates: coordinates ? `${coordinates.lat},${coordinates.lng}` : null,
+        contact_phone: phone,
+        contact_email: email,
+        coordinates,
+        imageUrl,
       })
 
-      if (insertError) throw insertError
-
-      router.push("/browse?tab=" + status)
+      if (result.error) {
+        setError(result.error)
+      } else {
+        // Wait a moment before redirect
+        setTimeout(() => {
+          router.push(`/browse?tab=${status}`)
+        }, 500)
+      }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to post item")
     } finally {

@@ -34,6 +34,16 @@ export default function HomePage() {
     }
 
     checkUser()
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, _session) => {
+      checkUser()
+    })
+
+    return () => {
+      subscription?.unsubscribe()
+    }
   }, [supabase])
 
   return (
@@ -47,7 +57,7 @@ export default function HomePage() {
             <h1 className="text-5xl sm:text-6xl font-bold tracking-tight mb-6">
               <span className="gradient-text">Reuniting you with your belongings</span>
             </h1>
-            <p className="text-xl text-muted-foreground mb-8 leading-relaxed">
+            <p className="text-xl text-gray-600 mb-8 leading-relaxed">
               Report a lost item or post one you've found. Our community is here to help you reconnect with what
               matters.
             </p>
@@ -83,8 +93,8 @@ export default function HomePage() {
               </Button>
             </Link>
           ) : (
-            <p className="text-muted-foreground">
-              <Link href="/auth/sign-up" className="text-primary font-semibold hover:underline">
+            <p className="text-gray-700 font-medium">
+              <Link href="/auth/sign-up" className="text-blue-600 font-semibold hover:text-blue-700 underline">
                 Create an account
               </Link>{" "}
               to post an item
@@ -97,13 +107,13 @@ export default function HomePage() {
       <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-transparent to-blue-50/30">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-3">Recently Found</h2>
-            <p className="text-muted-foreground">Items posted by our community recently</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-gray-900">Recently Found</h2>
+            <p className="text-gray-600 font-medium">Items posted by our community recently</p>
           </div>
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
             </div>
           ) : recentItems.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -112,7 +122,7 @@ export default function HomePage() {
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
+            <div className="text-center py-12 text-gray-600">
               <p>No items found yet. Be the first to post!</p>
             </div>
           )}
@@ -122,15 +132,15 @@ export default function HomePage() {
       {/* Footer CTA */}
       <section className="py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto text-center bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-12 border border-blue-100">
-          <h2 className="text-2xl font-bold mb-4">Can't find what you're looking for?</h2>
-          <p className="text-muted-foreground mb-6">Post your lost item and our community will help you find it.</p>
+          <h2 className="text-2xl font-bold mb-4 text-gray-900">Can't find what you're looking for?</h2>
+          <p className="text-gray-700 font-medium mb-6">Post your lost item and our community will help you find it.</p>
           {user ? (
             <Link href="/report">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Report Lost Item</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">Report Lost Item</Button>
             </Link>
           ) : (
             <Link href="/auth/sign-up">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Sign Up to Post</Button>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white">Sign Up to Post</Button>
             </Link>
           )}
         </div>

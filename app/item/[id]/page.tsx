@@ -5,10 +5,11 @@ import { createClient } from "@/lib/supabase/client"
 import Navigation from "@/components/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowLeft, MapPin, Calendar, Phone, Mail, AlertCircle } from "lucide-react"
+import { ArrowLeft, MapPin, Calendar, Phone, Mail, AlertCircle, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
+import ContactModal from "@/components/contact-modal"
 
 export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient()
@@ -16,6 +17,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
   const [user, setUser] = useState<any>(null)
   const [item, setItem] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showContactModal, setShowContactModal] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,7 +104,7 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
                 <h1 className="text-3xl font-bold mb-2">{item.title}</h1>
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Category</p>
+                    <p className="text-xs text-gray-600 uppercase tracking-wide mb-1">Category</p>
                     <p className="font-semibold text-primary">{item.category}</p>
                   </div>
 
@@ -118,31 +120,41 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
                 </div>
               </Card>
 
-              {/* Contact Info */}
+              {/* Contact Info & Action */}
               {canViewContact ? (
-                <Card className="p-6 border-green-200 bg-green-50">
-                  <p className="text-sm font-semibold mb-4 text-green-900">Contact Information</p>
-                  <div className="space-y-3">
-                    {item.contact_email && (
-                      <a
-                        href={`mailto:${item.contact_email}`}
-                        className="flex items-center gap-2 text-sm hover:text-primary"
-                      >
-                        <Mail className="w-4 h-4 text-green-600" />
-                        {item.contact_email}
-                      </a>
-                    )}
-                    {item.contact_phone && (
-                      <a
-                        href={`tel:${item.contact_phone}`}
-                        className="flex items-center gap-2 text-sm hover:text-primary"
-                      >
-                        <Phone className="w-4 h-4 text-green-600" />
-                        {item.contact_phone}
-                      </a>
-                    )}
-                  </div>
-                </Card>
+                <>
+                  <Card className="p-6 border-green-200 bg-green-50">
+                    <p className="text-sm font-semibold mb-4 text-green-900">Contact Information</p>
+                    <div className="space-y-3">
+                      {item.contact_email && (
+                        <a
+                          href={`mailto:${item.contact_email}`}
+                          className="flex items-center gap-2 text-sm hover:text-primary"
+                        >
+                          <Mail className="w-4 h-4 text-green-600" />
+                          {item.contact_email}
+                        </a>
+                      )}
+                      {item.contact_phone && (
+                        <a
+                          href={`tel:${item.contact_phone}`}
+                          className="flex items-center gap-2 text-sm hover:text-primary"
+                        >
+                          <Phone className="w-4 h-4 text-green-600" />
+                          {item.contact_phone}
+                        </a>
+                      )}
+                    </div>
+                  </Card>
+
+                  <Button
+                    onClick={() => setShowContactModal(true)}
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold"
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Send Inquiry
+                  </Button>
+                </>
               ) : (
                 <Card className="p-6 border-blue-200 bg-blue-50">
                   <div className="flex items-start gap-3">
@@ -168,11 +180,24 @@ export default function ItemDetailPage({ params }: { params: { id: string } }) {
           {item.description && (
             <Card className="mt-6 p-6 border-blue-100">
               <h2 className="text-lg font-bold mb-4">Description</h2>
-              <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+              <p className="text-gray-700 leading-relaxed">{item.description}</p>
             </Card>
           )}
         </div>
       </div>
+
+      {user && (
+        <ContactModal
+          isOpen={showContactModal}
+          onClose={() => setShowContactModal(false)}
+          recipientEmail={item.contact_email}
+          recipientId={item.user_id}
+          itemTitle={item.title}
+          itemId={item.id}
+          senderEmail={user.email}
+          senderId={user.id}
+        />
+      )}
     </>
   )
 }

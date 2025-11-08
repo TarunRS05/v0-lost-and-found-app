@@ -32,10 +32,7 @@ export default function LoginPage() {
       })
       if (error) throw error
 
-      setTimeout(() => {
-        router.push("/")
-        router.refresh()
-      }, 800)
+      router.push("/")
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "Login failed")
       setIsLoading(false)
